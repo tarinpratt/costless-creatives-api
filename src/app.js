@@ -18,6 +18,9 @@ app.use(helmet())
 app.get('/', (req, res) => {
       res.send('Hello, world!')
      })
+app.get('/api/*', (req, res) => {
+res.json({ok: true});
+});
 app.use(cors())
 
 app.use(function errorHandler(error, req, res, next) {
