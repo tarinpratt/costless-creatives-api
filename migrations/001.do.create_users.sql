@@ -3,4 +3,4 @@ CREATE TABLE users (
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL,
     password TEXT
-);
+); 
