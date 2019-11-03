@@ -7,6 +7,8 @@ const winston = require('winston');
 const { NODE_ENV } = require('./config')
 const UsersRouter = require('./users/user-router')
 const AuthRouter = require('./auth/auth-router')
+const ProfileRouter =  require('./profile/profile-router')
+const PostsRouter = require('./posts/posts-router')
 
 
 const app = express()
@@ -23,6 +25,8 @@ app.use(express.json());
 
 app.use('/api/users', UsersRouter)
 app.use('/api/auth', AuthRouter)
+app.use('/api/profile', ProfileRouter)
+app.use('/api/posts', PostsRouter)
 
 
 app.get('/', (req, res) => {

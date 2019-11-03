@@ -68,7 +68,22 @@ UsersRouter
     })
     .catch(next)
     })
-  .get((req, res) => { res.json(res.user) }
-)
+  .get((req, res) => { 
+    res.json(res.user) 
+  })
+
+.delete( (req, res, next) => {
+  UsersService.deleteUser(
+      req.app.get('db'),
+      req.params.users_id
+    )
+      .then(numRowsAffected => {
+      if(numRowsAffected > 0 ) {
+      res.status(204).end()
+      } else { res.status(404).json({ error: { message: `user does not exist` } })
+      }
+      })
+      .catch(next)
+      })
 
 module.exports = UsersRouter;

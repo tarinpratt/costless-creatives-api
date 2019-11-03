@@ -14,6 +14,10 @@ const UsersService = {
       .where('id', id)
       .first()
   },
+  getByUserId(knex, id){
+    return knex('users')
+        .where('id', id )
+},
   hasUserWithUserName(db, username) {
     return db('users')
       .where({ username })
@@ -26,6 +30,11 @@ const UsersService = {
       .into('users')
       .returning('*')
       .then(([user]) => user)
+  },
+  deleteUser(knex, id) {
+    return knex('users')
+      .where({ id })
+      .delete()
   },
   validatePassword(password) {
     if (password.length < 8) {

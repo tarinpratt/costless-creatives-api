@@ -18,8 +18,8 @@ describe('Users Endpoints', function() {
   })
 
   after('disconnect from db', () => db.destroy())
-  before('cleanup', () => db('users').truncate())
-  afterEach('cleanup', () => db('users').truncate())
+  // before('cleanup', () => db('users').truncate())
+  // afterEach('cleanup', () => db('users').truncate())
 
   context('given there are users', () => {
 
