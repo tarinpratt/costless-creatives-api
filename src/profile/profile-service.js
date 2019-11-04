@@ -5,13 +5,13 @@ const ProfileService = {
         return knex.select('*')
             .from('profile')
       }, 
-      getById(db, id) {
+    getById(db, id) {
         return db
             .from('profile')
             .select('*')
             .where('id', id)
             .first()
-      },
+    },
     insertProfile(db, newProfile) {
         return db
             .insert(newProfile)
@@ -43,7 +43,6 @@ const ProfileService = {
           user_id: profile.user_id
           }
         }, 
-}
-
+    }
 
 module.exports = ProfileService

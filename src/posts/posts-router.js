@@ -24,30 +24,26 @@ PostsRouter
       })
       .catch(next)
       })
-
 .post(requireAuth, jsonParser, (req, res, next) => {
-const { project_pic, description } = req.body
-console.log(req.body)
-const newPost = { project_pic, description}
-    if(!description) {
-    return res.status(400).json({
-    error: { message: `Missing key and value in request body` }
-    })
-    }
-
-    newPost.user_id = req.user.id
-
-PostsService.insertPost(
-    req.app.get('db'),
-    newPost
-    )
-    .then(post => {
-    res.status(201)
-        .location(path.posix.join(req.originalUrl, `/${post.id}`))
-        .json(serializeEntry(post))
+    const { project_pic, description } = req.body
+    const newPost = { project_pic, description}
+        if(!description) {
+        return res.status(400).json({
+        error: { message: `Missing key and value in request body` }
         })
-        .catch(next)
-     })
+        }
+    newPost.user_id = req.user.id
+    PostsService.insertPost(
+        req.app.get('db'),
+        newPost
+        )
+        .then(post => {
+        res.status(201)
+            .location(path.posix.join(req.originalUrl, `/${post.id}`))
+            .json(serializeEntry(post))
+            })
+            .catch(next)
+        })
 
 PostsRouter
 .route('/:post_id')
@@ -56,8 +52,7 @@ PostsRouter
       req.app.get('db'),
       req.params.post_id
     )
-    .then(post => {
-        
+    .then(post => {     
     if (!post) {
     return res.status(404).json({
     error: { message: `post does not exist` }
@@ -70,8 +65,7 @@ PostsRouter
     })
     .get((req, res) => { 
     res.json(serializeEntry(res.post))
-    })
-       
+    })    
 .delete( (req, res, next) => {
     PostsService.deletePost(
         req.app.get('db'),
@@ -88,35 +82,32 @@ PostsRouter
     })
     .catch(next)
   })
-
 .patch( jsonParser, (req, res, next) => {
-const { date, description, project_pic } = req.body
-const postToUpdate = { date, description, project_pic}
-const numberOfValues = Object.values(postToUpdate).filter(Boolean).length
-    if(numberOfValues === 0) {
-    return res.status(400).json({
-    error: {message : `request body must contain date, description, project_pic`}
+    const { date, description, project_pic } = req.body
+    const postToUpdate = { date, description, project_pic}
+    const numberOfValues = Object.values(postToUpdate).filter(Boolean).length
+        if(numberOfValues === 0) {
+        return res.status(400).json({
+        error: {message : `request body must contain date, description, project_pic`}
+        })
+        }
+    postToUpdate.user_id = req.user.id
+    PostsService.updatePost(
+        req.app.get('db'),
+        req.params.post_id,
+        postToUpdate
+        )
+        .then(numRowsAffected => {
+        if(numRowsAffected > 0 ) {
+        res.status(204).end()
+        } else {
+        res.status(404).json({
+        error: { message: `post does not exist` }
+        })
+        }
+        })
+        .catch(next)
     })
-    }
-
-postToUpdate.user_id = req.user.id
-
-PostsService.updatePost(
-    req.app.get('db'),
-    req.params.post_id,
-    postToUpdate
-    )
-    .then(numRowsAffected => {
-    if(numRowsAffected > 0 ) {
-    res.status(204).end()
-    } else {
-    res.status(404).json({
-    error: { message: `post does not exist` }
-    })
-    }
-    })
-    .catch(next)
-  })
 
 
 module.exports = PostsRouter

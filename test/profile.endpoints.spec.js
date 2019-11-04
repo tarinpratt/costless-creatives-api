@@ -8,7 +8,6 @@ const jwt = require('jsonwebtoken')
 describe('Profile Endpoints', function() {
     let db 
     const { testUsers, testProfiles, testPosts } = helpers.makeFixtures()
-
     function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
         const token = jwt.sign(
             { user_id: user.id },
@@ -18,14 +17,13 @@ describe('Profile Endpoints', function() {
             )
            return `Bearer ${token}`
         }
-
     before('make knex instance', () => {
         db = knex({
           client: 'pg',
           connection: process.env.TEST_DATABASE_URL,
         })
         app.set('db', db)
-      })
+        })
        after('disconnect from db', () => db.destroy())
        before('cleanup', () => helpers.cleanTables(db))
        afterEach('cleanup', () => helpers.cleanTables(db))
@@ -76,80 +74,74 @@ describe('Profile Endpoints', function() {
             })
         })
     })
-
-
-
-    describe(`GET /api/profile`, () => {
-        context(`given no profiles`, () => {
-            beforeEach('insert profiles', () => 
-            helpers.seedUsers(
-                db,
-                testUsers,
+        describe(`GET /api/profile`, () => {
+            context(`given no profiles`, () => {
+                beforeEach('insert profiles', () => 
+                helpers.seedUsers(
+                    db,
+                    testUsers,
+                )
             )
-            )
-        it(`responds with 200 and an empty list`, () => {
+            it(`responds with 200 and an empty list`, () => {
             return supertest(app)
                 .get(`/api/profile`)
                 .set('Authorization', makeAuthHeader(testUsers[0]))
                 .expect(200, [])
             })
         })
-
-        context(`given there are profiles in the db`, () => {
-            beforeEach('insert entries', () => 
-                helpers.seedTable(
-                    db,
-                    testUsers,
-                    testProfiles,
-                    testPosts
+            context(`given there are profiles in the db`, () => {
+                beforeEach('insert entries', () => 
+                    helpers.seedTable(
+                        db,
+                        testUsers,
+                        testProfiles,
+                        testPosts
+                )
             )
-        )
-              
-        it(`responds w 200 and all of the profiles`, () => {
-                 return supertest(app)
-                   .get('/api/profile')
-                   .set('Authorization', makeAuthHeader(testUsers[0]))
-                   .expect(200) 
+            it(`responds w 200 and all of the profiles`, () => {
+                    return supertest(app)
+                    .get('/api/profile')
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .expect(200) 
+                    })
                 })
             })
-        })
 
         describe(`GET /api/profile/:profile_id`, () => {
             context('Given there are profiles in the database', () => {
                 const testUser = testUsers[0]
-                context(`Given an XSS attack entry`, () => {
-                    const maliciousEntry = {
-                                id: 911,
-                                bio: 'Naughty naughty very naughty <script>alert("xss");</script>',
-                                profile_pic: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
-                                user_id: testUser.id
-                            }
-                    beforeEach('insert malicious entry', () => {
-                        return db
-                            .into('profile')
-                            .insert([maliciousEntry])
-                        })
-                it('removes XSS attack content', () => {
-                        return supertest(app)
-                            .get(`/api/profile/${maliciousEntry.id}`)
-                            .set('Authorization', makeAuthHeader(testUsers[0]))
-                            .expect(200)
-                            .expect(res => {
-                                expect(res.body.bio).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
-                                expect(res.body.profile_pic).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
-                                expect(res.body.user_id).to.eql(testUser.id)
-                            })
+            context(`Given an XSS attack entry`, () => {
+                const maliciousEntry = {
+                            id: 911,
+                            bio: 'Naughty naughty very naughty <script>alert("xss");</script>',
+                            profile_pic: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+                            user_id: testUser.id
+                        }
+            beforeEach('insert malicious entry', () => {
+                return db
+                    .into('profile')
+                    .insert([maliciousEntry])
+                })
+            it('removes XSS attack content', () => {
+                    return supertest(app)
+                        .get(`/api/profile/${maliciousEntry.id}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(200)
+                        .expect(res => {
+                            expect(res.body.bio).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
+                            expect(res.body.profile_pic).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
+                            expect(res.body.user_id).to.eql(testUser.id)
                         })
                     })
-                beforeEach('insert entries', () => 
-                helpers.seedTable(
-                    db,
-                    testUsers,
-                    testProfiles,
-                    testPosts
+                })
+            beforeEach('insert entries', () => 
+            helpers.seedTable(
+                db,
+                testUsers,
+                testProfiles,
+                testPosts
+                )
             )
-        )
-
             it('responds with 200 and the specified profile', () => {
                 const profileId = 2
                 const expectedProfile= testProfiles[profileId - 1]
@@ -160,129 +152,211 @@ describe('Profile Endpoints', function() {
               })
             })
           })
-          describe(`POST /api/profile`, () => {
+        describe(`POST /api/profile`, () => {
             beforeEach('insert profiles', () => 
                 helpers.seedUsers(
                     db,
                     testUsers
                 )
             )
-        const testUser = testUsers[0]
-
-        it(`creates an entry responding w 201 and the new entry`, () => {
-              const newProfile= {
-                profile_pic: 'https://i.imgur.com/TZtcMca.jpg',
-                bio: 'new bio',
-                user_id: testUser.id,
-              }
-              return supertest(app)
-                .post('/api/profile')
-                .set('Authorization', makeAuthHeader(testUsers[0]))
-                .send(newProfile)
-                .expect(res => {
-                    expect(res.body.profile_pic).to.eql(newProfile.profile_pic)
-                    expect(res.body.bio).to.eql(newProfile.bio)
-                    expect(res.body.user_id).to.eql(testUser.id)
-                    expect(res.body).to.have.property('id')
-                    expect(res.headers.location).to.eql(`/api/profile/${res.body.id}`)
-                })
-                .then(res => 
-                        supertest(app)
-                            .get(`/api/profile/${res.body.id}`)
-                            .set('Authorization', makeAuthHeader(testUsers[0]))
-                            .expect(res.body)
-                            )
-          })
-
-          const requiredFields = ['profile_pic', 'bio']
-          requiredFields.forEach(field => {
-              const newProfile = {
-                profile_pic: 'https://i.imgur.com/TZtcMca.jpg',
-                bio: 'new bio'
-              }
-          
-          it(`responds w 400 and an error message when the ${field} is missing `, () => {
-              delete newProfile[field]
-
-              return supertest(app)
-                .post('/api/profile')
-                .set('Authorization', makeAuthHeader(testUsers[0]))
-                .send(newProfile)
-                .expect(400, {
-                    error: { message: `Missing key and value in request body` }
-                })
-          })
-      })
-      context(`Given an XSS attack entry`, () => {
-        const maliciousEntry = {
-                    id: 911,
-                    bio: 'Naughty naughty very naughty <script>alert("xss");</script>',
-                    profile_pic: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
-                    user_id: testUser.id
+                const testUser = testUsers[0]
+            it(`creates an entry responding w 201 and the new entry`, () => {
+                const newProfile= {
+                    profile_pic: 'https://i.imgur.com/TZtcMca.jpg',
+                    bio: 'new bio',
+                    user_id: testUser.id,
                 }
-        beforeEach('insert malicious entry', () => {
-            return db
-                .into('profile')
-                .insert([maliciousEntry])
+                return supertest(app)
+                    .post('/api/profile')
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .send(newProfile)
+                    .expect(res => {
+                        expect(res.body.profile_pic).to.eql(newProfile.profile_pic)
+                        expect(res.body.bio).to.eql(newProfile.bio)
+                        expect(res.body.user_id).to.eql(testUser.id)
+                        expect(res.body).to.have.property('id')
+                        expect(res.headers.location).to.eql(`/api/profile/${res.body.id}`)
+                    })
+                    .then(res => 
+                            supertest(app)
+                                .get(`/api/profile/${res.body.id}`)
+                                .set('Authorization', makeAuthHeader(testUsers[0]))
+                                .expect(res.body)
+                                )
+                            })
+
+                    const requiredFields = ['profile_pic', 'bio']
+                    requiredFields.forEach(field => {
+                    const newProfile = {
+                        profile_pic: 'https://i.imgur.com/TZtcMca.jpg',
+                        bio: 'new bio'
+                    }          
+            it(`responds w 400 and an error message when the ${field} is missing `, () => {
+                delete newProfile[field]
+                return supertest(app)
+                    .post('/api/profile')
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .send(newProfile)
+                    .expect(400, {
+                        error: { message: `Missing key and value in request body` }
+                    })
+                })
             })
-    it('removes XSS attack content', () => {
-            return supertest(app)
-                .get(`/api/profile/${maliciousEntry.id}`)
+            context(`Given an XSS attack entry`, () => {
+                const maliciousEntry = {
+                            id: 911,
+                            bio: 'Naughty naughty very naughty <script>alert("xss");</script>',
+                            profile_pic: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+                            user_id: testUser.id
+                        }
+            beforeEach('insert malicious entry', () => {
+                return db
+                    .into('profile')
+                    .insert([maliciousEntry])
+                })
+            it('removes XSS attack content', () => {
+                    return supertest(app)
+                        .get(`/api/profile/${maliciousEntry.id}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(200)
+                        .expect(res => {
+                            expect(res.body.bio).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
+                            expect(res.body.profile_pic).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
+                            expect(res.body.user_id).to.eql(testUser.id)
+                        })
+                    })
+                })
+            })
+
+        describe(`DELETE /api/profile/:profile_id`, () => {
+            context(`Given no profiles`, () => {
+            beforeEach('insert profiles', () =>
+            helpers.seedUsers(
+                db,
+                testUsers
+            )
+        )
+            it(`responds with 404`, () => {
+                const profileId = 0000
+                    return supertest(app)
+                        .delete(`/api/profile/${profileId}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(404, { 
+                            error: { message: `profile does not exist` }
+                        })
+                    })
+                })
+            context('Given there are profiles in the db', () => {
+                beforeEach('insert entries', () =>
+                helpers.seedTable(
+                    db,
+                    testUsers,
+                    testProfiles,
+                    testPosts  
+                )
+                )
+            it('responds w 204 and removes the entry', () => {
+                const idToRemove = 2
+                const expectedProfiles = testProfiles.filter(profile => profile.id !== idToRemove)
+                    return supertest(app)
+                        .delete(`/api/profile/${idToRemove}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(204)
+                        .then(res => {
+                            supertest(app)
+                                .get('/api/profile')
+                                .expect(expectedProfiles)
+                        })
+                    })
+                })
+            })
+        describe(`PATCH /api/profile/:profile_id`, () => {
+            context(`Given no profile`, () => {
+                beforeEach('insert profile', () =>
+                helpers.seedUsers(
+                    db,
+                    testUsers
+                )
+            )
+            it(`responds w 404`, () => {
+                const profileId = 0000
+                return supertest(app)
+                .patch(`/api/profile/${profileId}`)
                 .set('Authorization', makeAuthHeader(testUsers[0]))
-                .expect(200)
-                .expect(res => {
-                    expect(res.body.bio).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;')
-                    expect(res.body.profile_pic).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
-                    expect(res.body.user_id).to.eql(testUser.id)
+                .expect(404, { 
+                    error: { message: `profile does not exist` }
                 })
             })
         })
-    })
-
-    describe(`DELETE /api/profile/:profile_id`, () => {
-        context(`Given no profiles`, () => {
-          beforeEach('insert profiles', () =>
-          helpers.seedUsers(
-              db,
-              testUsers
-          )
-      )
-      it(`responds with 404`, () => {
-          const profileId = 0000
-              return supertest(app)
-                  .delete(`/api/profile/${profileId}`)
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .expect(404, { 
-                      error: { message: `profile does not exist` }
-                  })
-              })
+            context('Given there are profiles in the db', () => {
+                beforeEach('insert profiles', () =>
+                helpers.seedTable(
+                    db,
+                    testUsers,
+                    testProfiles,
+                    testPosts
+                )
+            )
+            it('responds w 204 and updated profile', () => {
+                const idToUpdate = 2
+                const updateProfile= {
+                    profile_pic: 'https://i.imgur.com/LcoNgt8.jpg',
+                    bio: 'updated bio',
+                    user_id: 1
+                }
+                const expectedProfile = {
+                    ...testProfiles[idToUpdate - 1],
+                    ...updateProfile
+                }
+                return supertest(app)
+                    .patch(`/api/profile/${idToUpdate}`)
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .send(updateProfile)
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                        .get(`/api/profile/${idToUpdate}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(expectedProfile))
+            })
+            it(`responds w 400 when no required fields are supplied`, () => {
+                const idToUpdate = 2
+                return supertest(app)
+                    .patch(`/api/profile/${idToUpdate}`)
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .send({ irrelevantField: 'foo'})
+                    .expect(400, {
+                        error: {message: `request body must contain profile_pic, bio`}
+                    })
+            })
+            it(`responds w 204 when updating only a subset of fields`, () => {
+                const idToUpdate = 2
+                const updateProfile = {
+                    profile_pic: 'https://i.imgur.com/LcoNgt8.jpg',
+                    user_id: 1
+                }
+                const expectedProfile = {
+                    ...testProfiles[idToUpdate -1 ],
+                    ...updateProfile
+                }
+                return supertest(app)
+                    .patch(`/api/profile/${idToUpdate}`)
+                    .set('Authorization', makeAuthHeader(testUsers[0]))
+                    .send({
+                        ...updateProfile,
+                        fieldToIgnore: 'should not be in GET response'
+                    })
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                        .get(`/api/profile/${idToUpdate}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(expectedProfile)
+                        )
+                        })
+                    })
+                })
+            })
         })
-      context('Given there are profiles in the db', () => {
-          beforeEach('insert entries', () =>
-          helpers.seedTable(
-            db,
-            testUsers,
-            testProfiles,
-            testPosts  
-          )
-        )
-      it('responds w 204 and removes the entry', () => {
-          const idToRemove = 2
-          const expectedProfiles = testProfiles.filter(profile => profile.id !== idToRemove)
-              return supertest(app)
-                  .delete(`/api/profile/${idToRemove}`)
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .expect(204)
-                  .then(res => {
-                      supertest(app)
-                          .get('/api/profile')
-                          .expect(expectedProfiles)
-                  })
-             })
-        })
-    })
-
-    })
-})
 
    

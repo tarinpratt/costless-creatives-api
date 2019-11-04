@@ -5,9 +5,8 @@ const helpers = require('./test-helpers')
 
 describe('Auth Endpoints', function() {
   let db
-  const { testUsers } = helpers.makeFixtures()
-  const testUser = testUsers[1]
-
+  const { testUsers, testProfiles, testPosts } = helpers.makeFixtures()
+  const testUser = testUsers[0]
   before('make knex instance', () => {
     db = knex({
       client: 'pg',
@@ -17,17 +16,22 @@ describe('Auth Endpoints', function() {
   })
   after('disconnect from db', () => db.destroy())
   before('cleanup', () => helpers.cleanTables(db))
-  afterEach('cleanup', () => helpers.cleanTables(db))
-
-  describe(`POST /api/auth/login`, () => {
-  
+  afterEach('cleanup', () => helpers.cleanTables(db)) 
+describe(`POST /api/auth/login`, () => {
+  beforeEach('insert users', () =>
+  helpers.seedTable(
+    db,
+    testUsers,
+    testProfiles,
+    testPosts
+    )
+  )
     const requiredFields = ['username', 'password']
      requiredFields.forEach(field => {
     const loginAttemptBody = {
          username: testUser.username,
          password: testUser.password,
-       }
-    
+       } 
     it(`responds with 400 required error when '${field}' is missing`, () => {
       delete loginAttemptBody[field]
          return supertest(app)
@@ -36,7 +40,7 @@ describe('Auth Endpoints', function() {
            .expect(400, { error: `Missing '${field}' in request body` })
         })
      })
-     it(`responds 400 'invalid username or password' when bad username`, () => {
+    it(`responds 400 'invalid username or password' when bad username`, () => {
       const userInvalidUser = { username: 'user-not', password: 'existy' }
           return supertest(app)
             .post('/api/auth/login')

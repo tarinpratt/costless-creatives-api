@@ -6,7 +6,7 @@ function MakeUserArray() {
       id: 1,
       username: 'DanceLyfe',
       email: 'email@gmail.com',
-      password: '12345'
+      password: '1234567Tp#'
     },
     {
       id: 2,
@@ -110,28 +110,6 @@ function MakePostsArray(users) {
   ]
 }
 
-
-function MakeExpectedProfile(users, profile) {
-  const user = users
-    .find(user => user.id === profile.user_id)
-  return {
-    id: profile.id,
-    profile_pic: profile.profile_pic,
-    bio: profile.bio,
-    user_id: profile.user_id
-  }
-}
-
-function MakeExpectedPost(users, posts) {
-  const user = users
-    .find(user => user.id === posts.user_id)
-  return {
-    id: posts.id,
-    project_pic: posts.project_pic,
-    description: posts.description,
-    user_id: posts.user_id
-  }
-}
 function makeFixtures() {
     const testUsers = MakeUserArray()
     const testProfiles = MakeProfileArray(testUsers)
@@ -187,15 +165,9 @@ function seedUsers(db, users) {
     })
   }
 
-
   module.exports = {
   seedUsers,
   makeFixtures,
   cleanTables,
-  seedTable,
-  MakeUserArray,
-  MakeProfileArray,
-  MakePostsArray,
-  MakeExpectedProfile,
-  MakeExpectedPost
+  seedTable
   }

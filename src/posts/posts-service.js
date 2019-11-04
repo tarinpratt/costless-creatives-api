@@ -1,4 +1,3 @@
-
 const PostsService = {
 
     getAllEntries(db) {
@@ -25,19 +24,18 @@ const PostsService = {
         )
         .groupBy('p.id', 'p.user_id', 'usr.id')
         .orderBy('p.id', 'asc')
-
     },
     getAllPosts(knex) {
         return knex.select('*')
             .from('posts')
-      }, 
-      getById(db, id) {
+    }, 
+    getById(db, id) {
         return db
             .from('posts')
             .select('*')
             .where('id', id)
             .first()
-      },
+    },
     insertPost(db, newPost) {
         return db
             .insert(newPost)
@@ -62,6 +60,5 @@ const PostsService = {
             .update(newPostFields)
     }
 }
-
 
 module.exports = PostsService

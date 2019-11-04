@@ -15,7 +15,6 @@ UsersRouter
     })
     .catch(next)
     })
-
 .post(jsonBodyParser, (req, res, next) => {
   const { username, email, password } = req.body
     for (const field of ['username', 'email', 'password'])
@@ -71,7 +70,6 @@ UsersRouter
   .get((req, res) => { 
     res.json(res.user) 
   })
-
 .delete( (req, res, next) => {
   UsersService.deleteUser(
       req.app.get('db'),

@@ -11,31 +11,30 @@ AuthRouter
     if (value == null)
       return res.status(400).json({
       error: `Missing '${key}' in request body`
+    }) 
+  AuthService.getUserWithUserName(
+    req.app.get('db'),
+    loginUser.username,
+    )
+    .then(dbUser => {
+      if (!dbUser)
+      return res.status(400).json({
+      error: 'Incorrect username or password',
     })
-    
-AuthService.getUserWithUserName(
-  req.app.get('db'),
-  loginUser.username,
-  )
-  .then(dbUser => {
-    if (!dbUser)
-    return res.status(400).json({
-    error: 'Incorrect username or password',
-  })
-    return AuthService.comparePasswords(loginUser.password, dbUser.password)
-      .then(compareMatch => {
-      if(!compareMatch)
-    return res.status(400).json({
-    error: 'Incorrect username or password',
-  })
-    const sub = dbUser.username
-    const payload = { userid: dbUser.id }
-      res.send({
-      authToken: AuthService.createJwt(sub, payload),
+      return AuthService.comparePasswords(loginUser.password, dbUser.password)
+        .then(compareMatch => {
+        if(!compareMatch)
+      return res.status(400).json({
+      error: 'Incorrect username or password',
+    })
+      const sub = dbUser.username
+      const payload = { userid: dbUser.id }
+        res.send({
+        authToken: AuthService.createJwt(sub, payload),
+        })
       })
     })
+      .catch(next)
   })
-    .catch(next)
-})
 
 module.exports = AuthRouter;
