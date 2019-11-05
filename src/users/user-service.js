@@ -17,7 +17,7 @@ const UsersService = {
   getByUserId(knex, id){
     return knex('users')
         .where('id', id )
-},
+  },
   hasUserWithUserName(db, username) {
     return db('users')
       .where({ username })
