@@ -1,26 +1,69 @@
-# Express Boilerplate!
+# **Costless-Creatives-API**
 
-This is a boilerplate project used for starting new projects!
+Costless Creatives is a public board where users in the entertainment field can make profiles and posts, as well as communicate with other registered users via email. 
 
-## Set up
+# Server Hosted here:
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
+(https://aqueous-bayou-54903.herokuapp.com/)
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+# API Documentation
 
-## Scripts
+Users
 
-Start the application `npm start`
+* GET '/api/users to view all users
 
-Start nodemon for the application `npm run dev`
+* GET '/api/users/:user_id retrieves user by id
 
-Run the tests `npm test`
+* POST '/api/users creates a new user account
 
-## Deploying
+Posts
 
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.
+* GET '/api/posts view all posts for specified user
+
+* GET '/api/posts/:post_id gets a single post by id
+
+* POST '/api/posts to make a new post
+
+* PATCH '/api/posts/:post_id to update an exisiting post
+
+* DELETE '/api/posts/:post_id to delete a post
+
+Profiles
+
+* GET '/api/profile view all profiles
+
+* GET '/api/profile/:profile_id gets a single profile by id
+
+* POST '/api/profile to post a new profile
+
+* PATCH '/api/profile/:profile_id updates an exisiting profile
+
+* DELETE '/api/profile/:profile_id to delete an profile
+
+Authentication
+
+* POST '/api/auth/login matches given credentials and provides a JWT token
+`//req.body
+{
+    username: string
+    password: string
+}
+//res.body
+{
+  authToken: String
+}`
+
+
+# Technology Used 
+
+* Node.js
+* Express
+* Mocha
+* Chai
+* Postgres
+* Knex.js
+* Supertest
+
+# Security 
+
+Application uses JWT authentication
