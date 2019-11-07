@@ -25,7 +25,6 @@ ProfileRouter
       })
 .post(requireAuth, jsonParser, (req, res, next) => {
     const {profile_pic, bio} = req.body
-    console.log(req.body)
     const newProfile = { profile_pic, bio }
         if(!profile_pic || !bio ) {
         return res.status(400).json({
@@ -33,6 +32,7 @@ ProfileRouter
         })
         }
         newProfile.user_id = req.user.id
+         console.log("USER ID", newProfile.user_id)
     ProfileService.insertProfile(
         req.app.get('db'),
         newProfile
