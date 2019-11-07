@@ -62,7 +62,7 @@ Costless Creatives is a public board where users in the entertainment field can 
 
 ![Costless Creatives screenshot](/src/images/patchprofile.png)
 
-**DELETE '/api/profile/:profile_id to delete an profile**
+**DELETE '/api/profile/:profile_id to delete a profile**
 
 ![Costless Creatives screenshot](/src/images/deleteprofile.png)
 
