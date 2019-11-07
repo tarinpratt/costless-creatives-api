@@ -60,11 +60,11 @@ Costless Creatives is a public board where users in the entertainment field can 
 
 **PATCH '/api/profile/:profile_id updates an exisiting profile**
 
-![Costless Creatives screenshot](/src/images/updatepost.png)
+![Costless Creatives screenshot](/src/images/patchprofile.png)
 
 **DELETE '/api/profile/:profile_id to delete an profile**
 
-![Costless Creatives screenshot](/src/images/deletepost.png)
+![Costless Creatives screenshot](/src/images/deleteprofile.png)
 
 # Authentication
 
