@@ -25,6 +25,7 @@ ProfileRouter
       })
 .post(requireAuth, jsonParser, (req, res, next) => {
     const {profile_pic, bio} = req.body
+    console.log(req.body)
     const newProfile = { profile_pic, bio }
         if(!profile_pic || !bio ) {
         return res.status(400).json({
