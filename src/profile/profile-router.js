@@ -32,7 +32,7 @@ ProfileRouter
         })
         }
         newProfile.user_id = req.user.id
-         console.log("USER ID", newProfile.user_id)
+ 
     ProfileService.insertProfile(
         req.app.get('db'),
         newProfile
